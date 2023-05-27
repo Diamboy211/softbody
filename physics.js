@@ -14,7 +14,7 @@ class Ball
 		this.a3y = 0;
 		this.m = m;
 		this.im = 1.0 / m;
-		this.dt = dt
+		this.dt = dt;
 	}
 
 	apply_force(fx, fy)
@@ -49,6 +49,21 @@ class Ball
 		{
 			this.y = 600;
 			this.vy = 0;
+		}
+		if (this.y < 0)
+		{
+			this.y = 0;
+			this.vy = 0;
+		}
+		if (this.x > 600)
+		{
+			this.x = 600;
+			this.vx = 0;
+		}
+		if (this.x < 0)
+		{
+			this.x = 0;
+			this.vx = 0;
 		}
 	}
 }

@@ -2,14 +2,16 @@ function main()
 {
 	const iters = 256;
 	let canvas = document.getElementById("c");
-	let mx = 0;
-	let my = 0;
+	let mdx = 0;
+	let mdy = 0;
+	let mmx = 0;
+	let mmy = 0;
 	let md = 0;
 	let mr = 0;
 	canvas.addEventListener("mousedown", e =>
 	{
-		mx = e.clientX;
-		my = e.clientY;
+		mdx = mmx = e.clientX;
+		mdy = mmy = e.clientY;
 		md = e.buttons & 1;
 		mr = (e.buttons & 2) >> 1;
 		e.preventDefault();
@@ -17,14 +19,14 @@ function main()
 	});
 	canvas.addEventListener("mouseup", e =>
 	{
-		mx = e.clientX;
-		my = e.clientY;
+		mmx = e.clientX;
+		mmy = e.clientY;
 		md = e.buttons & 1;
 		mr = (e.buttons & 2) >> 1;
 		e.preventDefault();
 		return false;
 	});
-	canvas.addEventListener("mousemove", e => { mx = e.clientX; my = e.clientY; });
+	canvas.addEventListener("mousemove", e => { mmx = e.clientX; mmy = e.clientY; });
 
 	let ctx = canvas.getContext("2d");
 	let w = canvas.width;
@@ -38,8 +40,8 @@ function main()
 	for (let i = 0; i < py; i++)
 		for (let j = 0; j < px; j++)
 		{
-			let x = (j-i*0.5) * (200 / (px-1)) + 200;
-			let y = i * (200 / (py-1)) * Math.sqrt(.75) + 200;
+			let x = (j+i) * (200 / (px-1)) + 200;
+			let y = (j-i) * (200 / (py-1)) + 200;
 			p.push(new Ball(x, y, 1, 0.03 / iters));
 		}
 
@@ -51,7 +53,10 @@ function main()
 			s.push(new Spring(p[i*px+j], p[i*px+j+px], 128.0));
 	for (let i = 0; i < py-1; i++)
 		for (let j = 0; j < px-1; j++)
+		{
 			s.push(new Spring(p[i*px+j], p[i*px+j+px+1], 128.0));
+			s.push(new Spring(p[i*px+j+1], p[i*px+j+px], 128.0));
+		}
 
 	let img_data = ctx.createImageData(w, h);
 	let img_buf = new Array(w*h);
@@ -69,7 +74,7 @@ function main()
 			for (let q of p)
 			{
 				let f = 0.1;
-				q.apply_force(0, 8);
+				q.apply_force(0, 16*q.m);
 				q.apply_force(-q.vx * f, -q.vy * f);
 			}
 			for (let q of s)
@@ -79,9 +84,9 @@ function main()
 			for (let q of p)
 				q.constrain();
 		}
+		/*
 		for (let i = 0; i < w*h; i++)
 			img_buf[i] = 0;
-		/*
 		for (let q of p)
 		{
 			let px = Math.floor(q.x - 0.5);
